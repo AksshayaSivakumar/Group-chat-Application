@@ -21,6 +21,7 @@ async function submitForm(e) {
         
         if (response.status ===201) {
             console.log("hi")   
+            alert(response.data.message);
         window.location.href = "/user/login"
        }else{
         throw new Error('Failed to login')

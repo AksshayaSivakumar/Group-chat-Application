@@ -28,14 +28,24 @@ const signUp=async(req, res) =>{
       if (isStringInvalid(name) || isStringInvalid(email) || isStringInvalid(password)) {
         return res.status(400).json({ err: "Bad parameters. Something is missing" });
       }
+
+      const user=await User.findAll({where:{email}})
+      if(user.length>0)
+          {
+            return res.status(201).json({success:true, message: "User already exists, Please Login" });
+          }
+          
+    else{
         const saltrounds=10;
         bcrypt.genSalt(saltrounds,async(err,salt)=>{
         bcrypt.hash(password,salt,async(err,hash)=>{
         await User.create({ name, email, phone, password:hash })
-        res.status(201).json({ message: "Signup successful" })
+        res.status(201).json({ message: "Successfully signed up!! " });
+
         })
       }) 
       }
+    }
       // Create the user  
     catch(err) {
       console.error(err);
