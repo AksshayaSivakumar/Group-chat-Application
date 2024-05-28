@@ -6,12 +6,12 @@ async function submitForm(e)
                 email:e.target.email.value,
                 password:e.target.password.value
                }
-
-               await axios.post("user/loginpage",logindata)
+                console.log(logindata)
+               await axios.post("/user/loginpage",logindata)
                .then(response=>{
                 
                 alert(response.data.message);
-                //6  window.location.href="/expense/index"
+                 window.location.href="/chat/chatpage"
                 localStorage.setItem('token',response.data.token)
                 
                })

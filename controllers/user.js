@@ -60,6 +60,7 @@ const signUp=async(req, res) =>{
 
   const loginPage=async(req,res)=>{
     try{
+      console.log("hi")
       const { email, password } = req.body;
       if (isStringInvalid(email) || isStringInvalid(password)) {
         return res.status(400).json({ message: "emailid or password is missing", success:false});
