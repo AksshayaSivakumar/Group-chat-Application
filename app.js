@@ -1,41 +1,74 @@
-const express=require('express');
-const cors=require('cors');
-const dotenv=require('dotenv');
-const { createServer } = require('node:http');
-const { Server } = require('socket.io');
 
-dotenv.config();
-const sequelize=require('./util/database.js');
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const { instrument } = require('@socket.io/admin-ui');
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+require('dotenv').config();
 
-const userRoutes = require('./routes/userRoute');
-const chatRoutes = require('./routes/chatRoute');
-
+//Routes
+const sequelize = require('./util/database');
 const User = require('./models/user');
+const Forgotpasswords = require('./models/forgot-password');
+const ChatHistory = require('./models/chat-history');
+const Groups = require("./models/group");
+const GroupMember = require('./models/group-member');
+//Websocket
+const websocketService = require('./services/websocket');
+//const cronService = require('./services/cron');
+//cronService.job.start();
 
+const maninRoute = require('./routes/home');
+const userRoute = require('./routes/user');
 const app = express();
-const server = createServer(app);
-const io = new Server(server);
+
 
 app.use(cors({
-    origin: '*',
-    methods:['GET','POST'],
-  
-  }));
-app.use(express.static('public'));
+  origin: '*',
+  methods:['GET','POST'],
+
+}));
 app.use(express.json());
-io.on('connection', (socket) => {
-    console.log('a user connected');
-  });
+app.use(express.urlencoded({ extended: false }));
+app.use(express.static('public'));
+app.use(cookieParser());
 
-app.use('/user', userRoutes);
-app.use('/chat', chatRoutes);
+app.use('/user',userRoute)
+app.use(maninRoute)
 
-sequelize
-.sync()
-//.sync({force:true})
-    .then(() => {
-        app.listen(3000);
-    })
-    .catch(err => {
-        console.log(err);
-    })
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: ["https://admin.socket.io",],
+    credentials: true
+  }
+});
+io.on('connection', websocketService )
+
+instrument(io, { auth: false })
+
+User.hasMany(Forgotpasswords); 
+Forgotpasswords.belongsTo(User);
+User.hasMany(ChatHistory)
+ChatHistory.belongsTo(User, { constraints: true });
+User.belongsToMany(Groups, { through: GroupMember });
+Groups.belongsToMany(User, { through: GroupMember });
+Groups.belongsTo(User)
+Groups.hasMany(ChatHistory);
+ChatHistory.belongsTo(Groups);
+
+const PORT = process.env.PORT || 3000;
+async function initiate() {
+    try {
+     const res = await sequelize
+     .sync({ force: false});
+      httpServer.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+      })
+    } catch (err) {
+      console.error('Error during server initialization:', err);
+      process.exit(1); 
+    }
+  }
+  initiate();

@@ -1,37 +1,33 @@
-body {
-    background: url('https://img.freepik.com/free-vector/futuristic-background-design_23-2148503793.jpg?size=626&ext=jpg&ga=GA1.1.2082370165.1716595200&semt=ais_user') no-repeat center center fixed;
-    background-size: cover;
-    font-family: 'Arial', sans-serif;
-  }
-  .signup-container,.login-container{
-    max-width: 400px;
-    margin: 100px auto;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  }
-  .form-control:focus {
-    box-shadow: none;
-    border-color: #007bff;
-  }
-  .signup-title, .login-title{
-    text-align: center;
-    margin-bottom: 20px;
-    color: #007bff;
-    font-weight: bold;
-  }
-  .btn-custom {
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-  }
-  .btn-custom:hover {
-    background-color: #0056b3;
-  }
-  @media (max-width: 576px) {
-    .signup-container, .login-container {
-      margin: 50px 10px;
-      padding: 20px;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+*{
+    font-family: 'Poppins', sans-serif;
+}
+
+    .overflow-y-scroll {
+        scrollbar-width: thin;
+        scrollbar-color: #643737 #000000;
     }
-  }
+    .overflow-y-scroll::-webkit-scrollbar {
+        width: 6px;
+
+    }
+    .overflow-y-scroll::-webkit-scrollbar-thumb {
+        background: #1da211;
+    }
+    .overflow-y-scroll::-webkit-scrollbar-thumb:hover {
+        background: #666;
+
+    }
+    .chat-class{
+        max-width: 90%;
+        background-color: rgb(34, 114, 16);
+    }
+    .self-chat-class{
+        max-width: 90%;
+        background-color: rgb(32, 194, 194); 
+    }
+    .chat-image{
+        height: 10rem;
+        width: 14rem;
+        object-fit: cover;
+    }
