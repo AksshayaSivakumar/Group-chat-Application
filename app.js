@@ -1,74 +1,87 @@
+const express=require('express');
 
-const { createServer } = require("http");
-const { Server } = require("socket.io");
-const { instrument } = require('@socket.io/admin-ui');
-const express = require('express');
-const cors = require('cors');
-const cookieParser = require('cookie-parser');
-require('dotenv').config();
+const bodyParser=require('body-parser');
+const cors=require('cors');
+const http =require ("http");
+const socketIO=require('socket.io')
 
-//Routes
-const sequelize = require('./util/database');
-const User = require('./models/user');
-const Forgotpasswords = require('./models/forgot-password');
-const ChatHistory = require('./models/chat-history');
-const Groups = require("./models/group");
-const GroupMember = require('./models/group-member');
-//Websocket
-const websocketService = require('./services/websocket');
-//const cronService = require('./services/cron');
-//cronService.job.start();
+const app=express();
+const server = http.createServer(app);
+const io= socketIO(server,{ cors : { origin : '*'}});
 
-const maninRoute = require('./routes/home');
-const userRoute = require('./routes/user');
-const app = express();
+// const io = require('socket.io')(http,{cors:{origin:"*"}});
+
+
+io.on("connection",(socket)=>{
+    console.log('websocket connected-------------------------------------------');
+    socket.on("message",(msg,userName,groupId,userId)=>{
+        socket.broadcast.emit("message",msg,userName,groupId,userId)
+    });
+    socket.on("file",(message,userName,groupId,userId)=>{
+        socket.broadcast.emit("file",message,userName,groupId,userId)
+
+    })
+})
+
+
+require('dotenv').config()
+
+
+
+const sequelize=require('./util/database');
+const userRoutes=require('./routes/userRoute');
+const chatRoutes=require('./routes/chat');
+const groupRoutes=require('./routes/group')
+const forgotPasswordRoutes=require('./routes/forgotpassword');
+const User=require('./models/user');
+const Message=require('./models/chat');
+const Group=require('./models/group');
+const ForgotPassword=require('./models/forgotpassword')
+const UserGroup=require('./models/usergroup');
+
+
+
+
+
+
 
 
 app.use(cors({
-  origin: '*',
-  methods:['GET','POST'],
-
+    origin:'*'
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
-app.use(cookieParser());
+app.use(bodyParser.json());
 
-app.use('/user',userRoute)
-app.use(maninRoute)
+app.use('/user',userRoutes);
+app.use('/chat',chatRoutes);
+app.use(groupRoutes);
+app.use('/password',forgotPasswordRoutes);
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: ["https://admin.socket.io",],
-    credentials: true
-  }
-});
-io.on('connection', websocketService )
 
-instrument(io, { auth: false })
 
-User.hasMany(Forgotpasswords); 
-Forgotpasswords.belongsTo(User);
-User.hasMany(ChatHistory)
-ChatHistory.belongsTo(User, { constraints: true });
-User.belongsToMany(Groups, { through: GroupMember });
-Groups.belongsToMany(User, { through: GroupMember });
-Groups.belongsTo(User)
-Groups.hasMany(ChatHistory);
-ChatHistory.belongsTo(Groups);
 
-const PORT = process.env.PORT || 3000;
-async function initiate() {
-    try {
-     const res = await sequelize
-     .sync({ force: false});
-      httpServer.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-      })
-    } catch (err) {
-      console.error('Error during server initialization:', err);
-      process.exit(1); 
-    }
-  }
-  initiate();
+
+
+
+
+// //relationship
+User.hasMany(Message);
+Message.belongsTo(User);
+
+User.hasMany(ForgotPassword);
+ForgotPassword.belongsTo(User);
+
+Group.belongsToMany(User,{through:UserGroup});
+User.belongsToMany(Group,{through:UserGroup})
+
+Group.hasMany(Message);
+Message.belongsTo(Group);
+
+
+sequelize
+.sync()
+//.sync({force:true})
+.then((res)=>{
+    server.listen(process.env.PORT,()=>console.log('Server starts....'))
+})
+.catch(err=>console.log(err));
