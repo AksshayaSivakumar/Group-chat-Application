@@ -40,12 +40,6 @@ const ForgotPassword=require('./models/forgotpassword')
 const UserGroup=require('./models/usergroup');
 
 
-
-
-
-
-
-
 app.use(cors({
     origin:'*'
 }));

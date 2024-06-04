@@ -80,7 +80,7 @@ async function createNewGroup(){
 try {
   if(groupname){
     const token=localStorage.getItem('token');
-    const res=await axios.post('http://localhost:3000/groups',{groupname},{headers:{"Authorization":token}})
+    const res=await axios.post('http://3.7.86.136:3000/groups',{groupname},{headers:{"Authorization":token}})
     console.log(res.data.msg);
     showMessageDiv(res.data.msg);
     dispalyGroupLeft();
@@ -118,7 +118,7 @@ function showMessageDiv(msg){
 async function getAllgroups(){
   try {
     const token =localStorage.getItem('token');
-    const res=await axios.get('http://localhost:3000/groups',{headers:{"Authorization":token}})
+    const res=await axios.get('http://3.7.86.136:3000/groups',{headers:{"Authorization":token}})
     return res.data.groups;
   } catch (error) {
     document.body.innerHTML+=`<div style="color: red;text-align: center;">
@@ -212,7 +212,7 @@ async function addMembers(e){
     }
     if(memberEmail){
       let token=localStorage.getItem('token');
-      const res=await axios.post('http://localhost:3000/groups/addmembers',data,{headers:{"Authorization":token}})
+      const res=await axios.post('http://3.7.86.136:3000/groups/addmembers',data,{headers:{"Authorization":token}})
       showMessageDiv(res.data.msg)
     }
     else{
@@ -243,7 +243,7 @@ async function RemoveMember(e){
     }
     if(memberEmail){
       let token=localStorage.getItem('token');
-      const res=await axios.post('http://localhost:3000/groups/removemembers',data,{headers:{"Authorization":token}})
+      const res=await axios.post('http://3.7.86.136:3000/groups/removemembers',data,{headers:{"Authorization":token}})
       showMessageDiv(res.data.msg)
     }
     else{
@@ -274,7 +274,7 @@ async function changeAdmin(e){
     }
     if(memberEmail){
       let token=localStorage.getItem('token');
-      const res=await axios.patch('http://localhost:3000/groups/changeAdmin',data,{headers:{"Authorization":token}})
+      const res=await axios.patch('http://3.7.86.136:3000/groups/changeAdmin',data,{headers:{"Authorization":token}})
       showMessageDiv(res.data.msg)
       dispalyGroupLeft();
     }
@@ -301,7 +301,7 @@ async function removeGroup(e){
       const groupid=e.target.parentElement.getAttribute('groupId');
   
       let token=localStorage.getItem('token');
-      const res=await axios.delete(`http://localhost:3000/groups/deletegroup/${groupid}`,{headers:{"Authorization":token}})
+      const res=await axios.delete(`http://3.7.86.136:3000/groups/deletegroup/${groupid}`,{headers:{"Authorization":token}})
       showMessageDiv(res.data.msg)
       dispalyGroupLeft();
     
@@ -336,7 +336,7 @@ async function loadchats(){
   const token = localStorage.getItem('token');
   const groupId=localStorage.getItem('currentGroupId');
 try {
-    const res=await axios.get(`http://localhost:3000/chat/${groupId}`,{headers:{"Authorization":token}}); 
+    const res=await axios.get(`http://3.7.86.136:3000/chat/${groupId}`,{headers:{"Authorization":token}}); 
     console.log(res.data.allGroupMessages);
     displayChats(res.data.allGroupMessages);
 
@@ -377,7 +377,9 @@ async function displayChats(allgroupchats){
     }
 
     else{
+      console.log("hi")
       let fileLink = document.createElement('a');
+      console.log(fileLink);
       fileLink.href=chat.message;
       fileLink.innerText="click to see(download)";
     
@@ -413,6 +415,7 @@ async function userMessagestore(event){
     const token = localStorage.getItem('token');
     const groupId=localStorage.getItem('currentGroupId');
     let file=document.getElementById('uploadBtn').files[0];
+    console.log(file);
     let formData=new FormData();
     formData.append("file", file)
     console.log("------->",formData);
@@ -423,7 +426,7 @@ async function userMessagestore(event){
 
     }
 
-    const res=await axios.post(`http://localhost:3000/chat/upload/${groupId}`,formData,{headers})
+    const res=await axios.post(`http://3.7.86.136:3000/chat/upload/${groupId}`,formData,{headers})
     console.log(res.data.userFile);
 
     showfilelink(res.data.userFile);
@@ -437,7 +440,7 @@ async function userMessagestore(event){
     const token = localStorage.getItem('token');
     const groupId=localStorage.getItem('currentGroupId');
     const data={message:msg,groupId}
-    const res=await axios.post(`http://localhost:3000/chat/sendmessage`,data,{headers:{"Authorization":token}}); 
+    const res=await axios.post(`http://3.7.86.136:3000/chat/sendmessage`,data,{headers:{"Authorization":token}}); 
     const groupMsg=res.data.newMessage;
     showpostmsg(res.data.newMessage)
     socket.emit("message",msg,groupMsg.name,groupId,groupMsg.userId);
